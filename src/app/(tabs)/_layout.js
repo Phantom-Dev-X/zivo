@@ -3,7 +3,7 @@
  *  ZIVO — PAGE 3: the bottom bar (tabs)
  * ============================================================
  *  This is the file that creates the bar at the bottom of the
- *  app:  HOME · TOURNAMENTS · (green orb) · COMMUNITY · MORE
+ *  app:  HOME · TOURNAMENTS · (green orb) · COMMUNITY · PROFILE
  *
  *  It works exactly like the outer _layout.js but for tabs.
  *  Each <Tabs.Screen> below must have a matching file in this
@@ -13,7 +13,7 @@
  *     name="tournaments"  ->  src/app/(tabs)/tournaments.js
  *     name="host"         ->  src/app/(tabs)/host.js
  *     name="community"    ->  src/app/(tabs)/community.js
- *     name="more"         ->  src/app/(tabs)/more.js
+ *     name="profile"      ->  src/app/(tabs)/profile.js
  *
  *  The middle one is not a real tab — it is a green button that
  *  will open the "host a tournament" wizard.
@@ -99,13 +99,13 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* MORE (the "..." ) */}
+      {/* PROFILE — your own page (was "More" before) */}
       <Tabs.Screen
-        name="more"
+        name="profile"
         options={{
-          title: 'More',
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="ellipsis-horizontal" size={20} color={color} />
+          title: 'Profile',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'person' : 'person-outline'} size={20} color={color} />
           ),
         }}
       />

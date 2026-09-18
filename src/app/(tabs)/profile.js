@@ -1,7 +1,11 @@
 /**
- * ZIVO — MORE (placeholder)
+ * ZIVO — PROFILE (placeholder)
  * ---------------------------------------------------------------
- * A stand-in so the bottom bar has something to show. This is the drawer for everything that is not a main tab.
+ * The 5th tab. Your own page: avatar, gamer tag, level, coins,
+ * stats, match history and settings.
+ *
+ * This is a stand-in so the bottom bar has something to show.
+ * We build the real one later — this file is where it goes.
  */
 
 import { Ionicons } from '@expo/vector-icons';
@@ -9,15 +13,17 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function More() {
+export default function Profile() {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + 24 }]}>
-      <Ionicons name="ellipsis-horizontal" size={34} color="#FFC529" />
-      <Text style={styles.title}>MORE</Text>
-      <Text style={styles.sub}>Wallet · Rewards · Settings</Text>
-      <Text style={styles.body}>Wallet, rewards, settings, help and rules. Everything that does not deserve its own tab lives here.</Text>
+      <Ionicons name="person-circle-outline" size={38} color="#FFC529" />
+      <Text style={styles.title}>PROFILE</Text>
+      <Text style={styles.sub}>Your page · Stats · Wallet</Text>
+      <Text style={styles.body}>
+        Your gamer tag, level, coins, win history and settings. Everything about YOU lives here.
+      </Text>
 
       <Pressable style={styles.back} onPress={() => router.replace('/(tabs)')}>
         <Text style={styles.backText}>← Back to Home</Text>
