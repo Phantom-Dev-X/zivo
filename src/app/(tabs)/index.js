@@ -107,6 +107,7 @@ const LIVE_CARDS = [
 /** Upcoming — the two cards under live. */
 const UPCOMING = [
   {
+    art: require('../../../assets/zivo/hero-3.jpg'), // the picture at the top of the card
     chipKind: 'countdown', // this one ticks live
     chip: 'STARTS IN',
     startIn: 2 * 60 * 60 + 15 * 60, // 2 hours 15 minutes, in seconds
@@ -117,6 +118,7 @@ const UPCOMING = [
     prize: '5,000',
   },
   {
+    art: require('../../../assets/zivo/hero-2.jpg'),
     chipKind: 'time',
     chip: 'TOMORROW · 6:00 PM',
     chipTint: '#7C5CFF',
@@ -475,21 +477,32 @@ export default function Home() {
         <View style={styles.rowOfTwo}>
           {UPCOMING.map((u) => (
             <View key={u.name} style={[styles.card, { width: half }]}>
-              <View style={{ padding: 12 }}>
-                {/* the little timing pill at the top */}
-                {u.chipKind === 'countdown' ? (
-                  <View style={[styles.chipPill, { borderColor: u.chipTint + '77', backgroundColor: u.chipTint + '1A' }]}>
-                    <Ionicons name="time-outline" size={11} color={u.chipTint} />
-                    <Text style={[styles.chipText, { color: u.chipTint }]}>{u.chip} </Text>
-                    <Countdown seconds={u.startIn} tint={u.chipTint} />
-                  </View>
-                ) : (
-                  <View style={[styles.chipPill, { borderColor: u.chipTint + '77', backgroundColor: u.chipTint + '1A' }]}>
-                    <Ionicons name="calendar-outline" size={11} color={u.chipTint} />
-                    <Text style={[styles.chipText, { color: u.chipTint }]}>{u.chip}</Text>
-                  </View>
-                )}
+              {/* the picture band at the top of the card */}
+              <View style={styles.upArt}>
+                <Image source={u.art} style={StyleSheet.absoluteFill} contentFit="cover" />
+                <LinearGradient
+                  colors={['rgba(8,8,15,0.10)', 'rgba(8,8,15,0.55)', 'rgba(19,19,30,1)']}
+                  style={StyleSheet.absoluteFill}
+                />
 
+                {/* the little timing pill, sitting on the picture */}
+                <View style={styles.upChipPos}>
+                  {u.chipKind === 'countdown' ? (
+                    <View style={[styles.chipPill, { borderColor: u.chipTint + '77', backgroundColor: u.chipTint + '1A' }]}>
+                      <Ionicons name="time-outline" size={11} color={u.chipTint} />
+                      <Text style={[styles.chipText, { color: u.chipTint }]}>{u.chip} </Text>
+                      <Countdown seconds={u.startIn} tint={u.chipTint} />
+                    </View>
+                  ) : (
+                    <View style={[styles.chipPill, { borderColor: u.chipTint + '77', backgroundColor: u.chipTint + '1A' }]}>
+                      <Ionicons name="calendar-outline" size={11} color={u.chipTint} />
+                      <Text style={[styles.chipText, { color: u.chipTint }]}>{u.chip}</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              <View style={{ padding: 12 }}>
                 <Text style={styles.cardName} numberOfLines={1}>{u.name}</Text>
                 <Text style={styles.cardMeta} numberOfLines={1}>{u.meta}</Text>
 
@@ -886,6 +899,8 @@ const styles = StyleSheet.create({
   rewardSub: { fontFamily: 'Rajdhani-Medium', fontSize: 10.5, color: '#8B8BA5', marginTop: 2 },
 
   // --- 6. upcoming ---
+  upArt: { height: 78 },
+  upChipPos: { position: 'absolute', top: 9, left: 9 },
   chipPill: {
     flexDirection: 'row',
     alignItems: 'center',
