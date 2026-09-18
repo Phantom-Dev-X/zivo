@@ -1,49 +1,33 @@
 /**
  * ============================================================
- *  ZIVO — PAGE 3: the bottom bar (tabs)
+ *  ZIVO — the bottom bar (tabs)
  * ============================================================
- *  This is the file that creates the bar at the bottom of the
- *  app:  HOME · TOURNAMENTS · (green orb) · COMMUNITY · PROFILE
+ *  This file builds the bar at the bottom of the app:
  *
- *  It works exactly like the outer _layout.js but for tabs.
- *  Each <Tabs.Screen> below must have a matching file in this
- *  folder:
+ *      HOME · TOURNAMENTS · LEADERBOARD · REWARDS · PROFILE
  *
- *     name="index"        ->  src/app/(tabs)/index.js       (HOME)
+ *  It works exactly like the outer _layout.js, but for tabs.
+ *  Every <Tabs.Screen> below needs a matching FILE in this folder:
+ *
+ *     name="index"        ->  src/app/(tabs)/index.js        (HOME)
  *     name="tournaments"  ->  src/app/(tabs)/tournaments.js
- *     name="host"         ->  src/app/(tabs)/host.js
- *     name="community"    ->  src/app/(tabs)/community.js
+ *     name="leaderboard"  ->  src/app/(tabs)/leaderboard.js
+ *     name="rewards"      ->  src/app/(tabs)/rewards.js
  *     name="profile"      ->  src/app/(tabs)/profile.js
  *
- *  The middle one is not a real tab — it is a green button that
- *  will open the "host a tournament" wizard.
+ *  The last two <Tabs.Screen> entries are HIDDEN screens
+ *  (href: null). They are real pages you can navigate to, but
+ *  no bar button:
+ *     host       = the host / custom-room wizard
+ *     community  = the community page
+ *  We still need them because buttons on Home and Tournaments
+ *  push to them.
  * ============================================================
  */
 
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
 import { Tabs } from 'expo-router';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
-
-// ---------- the green circle in the middle ----------
-function HostOrb() {
-  return (
-    <Pressable
-      onPress={() =>
-        Alert.alert('Host a tournament', 'The host wizard is the next thing we build.')
-      }
-      style={({ pressed }) => [styles.orb, pressed && { opacity: 0.85 }]}
-      hitSlop={8}
-    >
-      <Image
-        source={require('../../../assets/zivo/mark.png')}
-        style={styles.orbMark}
-        tintColor="#22C55E"
-        contentFit="contain"
-      />
-    </Pressable>
-  );
-}
+import { StyleSheet } from 'react-native';
 
 export default function TabsLayout() {
   return (
@@ -79,27 +63,29 @@ export default function TabsLayout() {
         }}
       />
 
-      {/* THE GREEN ORB — not a tab, a button */}
+      {/* LEADERBOARD */}
       <Tabs.Screen
-        name="host"
+        name="leaderboard"
         options={{
-          title: '',
-          tabBarButton: () => <HostOrb />,
-        }}
-      />
-
-      {/* COMMUNITY */}
-      <Tabs.Screen
-        name="community"
-        options={{
-          title: 'Community',
+          title: 'Leaderboard',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'people' : 'people-outline'} size={20} color={color} />
+            <Ionicons name={focused ? 'podium' : 'podium-outline'} size={20} color={color} />
           ),
         }}
       />
 
-      {/* PROFILE — your own page (was "More" before) */}
+      {/* REWARDS */}
+      <Tabs.Screen
+        name="rewards"
+        options={{
+          title: 'Rewards',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'gift' : 'gift-outline'} size={19} color={color} />
+          ),
+        }}
+      />
+
+      {/* PROFILE */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -109,6 +95,10 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      {/* ---- hidden pages (no bar button) ---- */}
+      <Tabs.Screen name="host" options={{ href: null }} />
+      <Tabs.Screen name="community" options={{ href: null }} />
     </Tabs>
   );
 }
@@ -118,27 +108,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#0A0A11',
     borderTopWidth: 1,
     borderTopColor: '#2A2A3E',
-    height: 76,
+    height: 72,
     paddingTop: 6,
-    paddingBottom: 12,
+    paddingBottom: 10,
     elevation: 0,
   },
   label: {
     fontFamily: 'Rajdhani-SemiBold',
     fontSize: 9,
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
   },
-  orb: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginTop: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#0E0E16',
-    borderWidth: 1,
-    borderColor: 'rgba(34,197,94,0.5)',
-    boxShadow: '0 8px 14px rgba(34,197,94,0.75)', // the green glow
-  },
-  orbMark: { width: 22, height: 22 },
 });

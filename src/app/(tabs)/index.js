@@ -224,8 +224,8 @@ export default function Home() {
 
   function onQuickAction(key) {
     if (key === 'tournaments') return router.push('/(tabs)/tournaments');
-    if (key === 'leaderboard') return soon('Leaderboard', 'The full rankings board is one of the next pages.');
-    return soon('Host a tournament', 'The host wizard is the next thing we build.');
+    if (key === 'leaderboard') return router.push('/(tabs)/leaderboard');
+    return router.push('/(tabs)/host'); // the host wizard (a hidden page for now)
   }
 
   // ---- the 3 "earn coins" taps ----
