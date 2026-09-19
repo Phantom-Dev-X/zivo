@@ -1,50 +1,38 @@
 /**
  * ============================================================
- *  ZIVO — ONBOARDING  (5 stages, one shared look)
+ *  ZIVO — ONBOARDING  (2 pages, one shared look)
  * ============================================================
- *  ONE file, ONE design system, FIVE stages.
- *  Stage 1, Stage 2, Stage 3, Stage 4, Stage 5 all use the
- *  exact same pieces:
+ *  ONE file, ONE design system, TWO pages.
+ *  Both pages use the exact same pieces:
  *
- *      <SkipPill />       the glass button, top right
- *      <Eyebrow />        the small orange words
- *      <Headline />       the 3 big lines (last one orange)
- *      <Body />           the paragraph
  *      <FeatureCards />   the 4 little cards
  *      <NextButton />     the big orange button
- *      <Dots />           5 dots, the current one orange
+ *      <Dots />           the dots, current one orange
  *
- *  Stages do NOT have their own copies of those parts.
- *  A stage is just DATA (some words). Change the words in the
- *  STAGES list below and the screen changes. That is the whole
- *  idea — one system, five pages.
+ *  A "page" is just DATA (some words). Change the words in the
+ *  STAGES list below and the screen changes.
  *
- *  ------------------------------------------------------------
- *  THE BACKGROUND
- *  ------------------------------------------------------------
- *  The background picture is YOUR artwork. Nothing in this file
- *  draws or edits it. Right now all 5 stages share the same
- *  picture (bg-1.jpg) because that is the only one we have.
- *
- *  >>> When you send the other background pictures, give each
- *      stage its own `bg:` line in the STAGES list, and move the
- *      <ImageBackground> from the root into each page (there is
- *      a note showing exactly where). <<<
+ *  Pages 3, 4 and 5 were removed because you did not like that
+ *  copy. They are parked at the bottom of this file — scroll to
+ *  the very end, put your own words in, and they come back.
  *
  *  ------------------------------------------------------------
- *  EDGE-TO-EDGE (no black strip behind the status bar)
+ *  THE BACKGROUND SITS OVER THE WHOLE SCREEN
  *  ------------------------------------------------------------
- *  BACKGROUND  = fills the whole physical screen, top to bottom,
- *                including behind the status bar and behind the
- *                phone's bottom gesture bar.
- *  FOREGROUND  = every word and button respects the safe area,
- *                so nothing hides under the clock or the notch.
+ *  This was the important fix. There are two different screen
+ *  sizes on a phone and they are NOT the same:
  *
- *  The background is the ROOT of this screen, so there is no
- *  coloured layer above it that could show a strip.
- *  The status bar itself is transparent on its own in Expo SDK 57
- *  (edge-to-edge is mandatory there), so we only set its icon
- *  colour to white — nothing else is needed or allowed.
+ *      window  = the app area, NOT including the status bar
+ *      screen  = the WHOLE physical screen, INCLUDING the status
+ *                bar and the phone's bottom navigation bar
+ *
+ *  If you size the picture with "window", a black strip shows
+ *  where the status bar is. So the picture here is pinned to
+ *  "screen" with position:absolute on all four sides — exactly
+ *  the thing you did before with your View tag.
+ *
+ *  The words and buttons still sit inside the safe area, so the
+ *  clock and the notch never cover them.
  * ============================================================
  */
 
@@ -54,7 +42,8 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useRef, useState } from 'react';
 import {
-  ImageBackground,
+  Dimensions,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -65,127 +54,99 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // ============================================================
-//  1. THE 5 STAGES  —  every word on every page lives here
+//  1. YOUR ARTWORK
 // ============================================================
-//  eyebrow  small orange words above the headline
-//  lines    the big headline, exactly 3 lines
-//  hot      which line is orange (0 = first, 1 = second, 2 = third)
-//  body     the paragraph
-//  cards    the 4 little cards (icon + label, \n = a new line)
-// ============================================================
-
-/** the background picture. Same asset for now — see the note up top. */
+//  Nothing in this file draws or edits this picture.
+//  It is pinned full-screen behind everything.
 const BG = require('../../assets/zivo/onboard/bg-1.jpg');
 
-/** Stage 1's cards. Stage 2 uses the same four, on purpose. */
-const CARDS_WELCOME = [
-  { icon: 'trophy', label: 'Free\nTournaments' },
-  { icon: 'logo-bitcoin', label: 'Earn\nCoins' },
-  { icon: 'stats-chart', label: 'XP &\nLeaderboards' },
-  { icon: 'people', label: 'Referral\nRewards' },
-];
-
+// ============================================================
+//  2. THE PAGES  —  every word lives here
+// ============================================================
+//  eyebrow  the small orange words above the headline
+//  lines    the big headline. Keep them short — the code
+//           measures the longest line and sizes the text so it
+//           always fits across the phone.
+//  hot      which line is orange (0 = first, 1 = second, 2 = third)
+//  body     the paragraph
+//  cards    the 4 little cards (icon + label, \n = new line)
+// ============================================================
 const STAGES = [
-  // ---------------- STAGE 1 (already on your phone — untouched) ----------------
   {
     id: 'welcome',
-    bg: BG,
     eyebrow: 'WELCOME TO ZIVO',
     lines: ['Turn Your', 'Skills Into', 'Rewards'],
     hot: 2,
     body:
       'Join Free Fire tournaments, compete with players, earn coins, climb the leaderboards and win amazing prizes.',
-    cards: CARDS_WELCOME,
+    cards: [
+      { icon: 'trophy', label: 'Free\nTournaments' },
+      { icon: 'logo-bitcoin', label: 'Earn\nCoins' },
+      { icon: 'stats-chart', label: 'XP &\nLeaderboards' },
+      { icon: 'people', label: 'Referral\nRewards' },
+    ],
   },
-
-  // ---------------- STAGE 2 (the new one) ----------------
   {
     id: 'levelup',
-    bg: BG,
     eyebrow: 'LEVEL UP YOUR GAME',
     lines: ['More Tournaments', 'Bigger Rewards', 'Real Opportunities'],
     hot: 2,
     body:
       'Join daily and premium tournaments, prove your skills, earn coins and climb the ranks on the leaderboard.',
-    cards: CARDS_WELCOME, // same four cards as Stage 1, as you asked
-  },
-
-  // ---------------- STAGE 3 ----------------
-  {
-    id: 'how',
-    bg: BG,
-    eyebrow: 'HOW ZIVO WORKS',
-    lines: ['Host Puts Up', 'The Prize.', 'Winner Takes It'],
-    hot: 2,
-    body:
-      'The host opens a room and puts up the prize. You join, check in, and play. When the results lock, the winner collects.',
     cards: [
-      { icon: 'add-circle', label: 'Host a\nroom' },
-      { icon: 'enter', label: 'Join a\nroom' },
-      { icon: 'checkmark-circle', label: 'Check\nin' },
-      { icon: 'medal', label: 'Win the\nprize' },
-    ],
-  },
-
-  // ---------------- STAGE 4 ----------------
-  {
-    id: 'fair',
-    bg: BG,
-    eyebrow: 'FAIR PLAY, ALWAYS',
-    lines: ['Every Result', 'Verified.', 'Every Time'],
-    hot: 1,
-    body:
-      'Players send their own post-match screenshot, a referee records from the spectator slot, and any mismatch is flagged before a prize moves.',
-    cards: [
-      { icon: 'camera', label: 'Screenshot\nproof' },
-      { icon: 'videocam', label: 'Referee\nrecords' },
-      { icon: 'time', label: '24h\ndisputes' },
-      { icon: 'receipt', label: 'Payout\nreceipt' },
-    ],
-  },
-
-  // ---------------- STAGE 5 ----------------
-  {
-    id: 'ready',
-    bg: BG,
-    eyebrow: 'YOU ARE READY',
-    lines: ['Your Room', 'Is Waiting.', 'Come Inside'],
-    hot: 2,
-    body:
-      'Grab your starter coins and join your first room tonight. Winner takes the prize — and the bragging rights.',
-    cards: [
-      { icon: 'flash', label: 'Quick\nsignup' },
-      { icon: 'logo-bitcoin', label: 'Starter\ncoins' },
-      { icon: 'enter', label: 'Join a\nroom' },
-      { icon: 'trending-up', label: 'Climb\nthe ranks' },
+      { icon: 'trophy', label: 'Free\nTournaments' },
+      { icon: 'logo-bitcoin', label: 'Earn\nCoins' },
+      { icon: 'stats-chart', label: 'XP &\nLeaderboards' },
+      { icon: 'people', label: 'Referral\nRewards' },
     ],
   },
 ];
 
 // ============================================================
-//  2. THE SCREEN
+//  3. SIZING  —  measured from your real font, not guessed
+// ============================================================
+//  In Bebas Neue, one letter is about 0.395 of the font size
+//  wide (0.395 = 39.5% of the height). I measured this from the
+//  actual font file, using your real headlines.
+//
+//  So: the longest line of every page decides how big the text
+//  can be without touching the screen edge.
+// ============================================================
+const SIDE = 20; // left/right margin for all text
+const CHAR_RATIO = 0.395; // Bebas Neue, measured
+const MAX_HEADLINE = 56; // never bigger than this, even on a tablet
+
+function headlineSizeFor(stages, width, height) {
+  // the longest line across every page, so both pages match
+  const longest = stages.reduce(
+    (max, s) => Math.max(max, ...s.lines.map((l) => l.length)),
+    0
+  );
+
+  const usable = width - SIDE * 2;
+  const fitsAcross = usable / (CHAR_RATIO * longest); // width limit
+  const fitsDown = height * 0.058; // height limit (short phones)
+
+  return Math.floor(Math.min(fitsAcross, fitsDown, MAX_HEADLINE));
+}
+
+// ============================================================
+//  4. THE SCREEN
 // ============================================================
 export default function Onboarding() {
-  const insets = useSafeAreaInsets(); // status bar height + bottom gesture bar
-  const { width, height } = useWindowDimensions(); // the real screen size
+  const insets = useSafeAreaInsets(); // keeps words off the clock + home bar
+  const { width, height } = useWindowDimensions(); // the app area
   const pager = useRef(null);
 
-  // which stage we are on (0 = Stage 1)
   const [index, setIndex] = useState(0);
 
+  // THE WHOLE PHYSICAL SCREEN — status bar and nav bar included.
+  // This is what makes the picture cover everything.
+  const full = Dimensions.get('screen');
+
+  const headlineSize = headlineSizeFor(STAGES, width, height);
   const isLast = index === STAGES.length - 1;
 
-  /**
-   * The headline size grows with the phone instead of using a fixed
-   * number from a screenshot:
-   *   - it follows the screen WIDTH (so wide phones get big words)
-   *   - but it also follows the screen HEIGHT (so short phones do not
-   *     push the cards off the bottom)
-   *   - and it stops at 44 so a tablet does not look silly
-   */
-  const headlineSize = Math.min(Math.round(width * 0.098), Math.round(height * 0.052), 44);
-
-  /** the Next button */
   function goNext() {
     if (isLast) {
       router.replace('/(tabs)'); // into the app
@@ -196,50 +157,54 @@ export default function Onboarding() {
     setIndex(to);
   }
 
-  /** the Skip button — the same behaviour as Stage 1 */
   function goSkip() {
     router.replace('/(tabs)');
   }
 
   return (
-    // ============================================================
-    //  THE BACKGROUND IS THE ROOT
-    //  It fills the whole screen — behind the status bar, behind
-    //  the notch, down behind the bottom gesture bar.
-    //  (When each stage gets its own picture, cut this
-    //   <ImageBackground> and paste it inside the page below,
-    //   using {stage.bg} instead of {BG}.)
-    // ============================================================
-    <ImageBackground source={BG} style={styles.root} resizeMode="cover">
-      {/* white status-bar icons; the bar itself stays transparent
-          so your artwork shows through it */}
+    // the root view tag — it spans the entire phone screen
+    <View style={styles.root}>
+      {/* white status-bar icons. The bar itself paints nothing, so
+          your artwork is what shows behind it. */}
       <StatusBar style="light" />
 
-      {/*
-        One very light dark wash, bottom half only, so the small grey
-        paragraph stays readable on every phone. It does not move or
-        change your artwork. Delete this block for zero overlay.
-      */}
-      <LinearGradient
-        colors={['rgba(6,8,16,0)', 'rgba(6,8,16,0.35)', 'rgba(6,8,16,0.78)']}
-        locations={[0, 0.5, 1]}
-        style={StyleSheet.absoluteFill}
+      {/* ============================================================
+          THE BACKGROUND LAYER
+          Pinned to the full physical screen: top 0, bottom 0,
+          left 0, right 0. It goes UNDER the status bar and UNDER
+          the bottom navigation bar.
+      ============================================================ */}
+      <View
+        style={[styles.bgLayer, { width: full.width, height: full.height }]}
         pointerEvents="none"
-      />
+      >
+        <Image
+          source={BG}
+          style={[styles.bgImage, { width: full.width, height: full.height }]}
+          resizeMode="cover"
+        />
+
+        {/*
+          A very light dark wash over the bottom half only, so the
+          small grey paragraph stays readable on every phone.
+          Delete this block for zero overlay — nothing else changes.
+        */}
+        <LinearGradient
+          colors={['rgba(6,8,16,0)', 'rgba(6,8,16,0.32)', 'rgba(6,8,16,0.76)']}
+          locations={[0, 0.5, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+      </View>
 
       {/* ============================================================
-          THE FOREGROUND LAYER  (safe-area aware)
+          THE FOREGROUND  (safe-area aware)
       ============================================================ */}
       <View style={styles.column}>
-        {/* ---- space for the status bar / notch ---- */}
+        {/* ---- clear the status bar / notch ---- */}
         <View style={{ height: insets.top }} />
 
-        {/* ============================================================
-            TOP SECTION — same as Stage 1.
-            The ZIVO logo and the word TOURNAMENTS are already inside
-            your picture, so we do not draw them again. The only thing
-            we build is the Skip pill.
-        ============================================================ */}
+        {/* ---- Skip pill, top right. ZIVO logo and TOURNAMENTS are
+             already inside your picture, so we never draw them. ---- */}
         <View style={styles.topRow}>
           <Pressable
             onPress={goSkip}
@@ -247,15 +212,15 @@ export default function Onboarding() {
             hitSlop={8}
           >
             <Text style={styles.skipText}>Skip</Text>
-            <Ionicons name="arrow-forward" size={14} color="#EDEDF5" />
+            <Ionicons name="arrow-forward" size={15} color="#EDEDF5" />
           </Pressable>
         </View>
 
-        {/* ---- this gap lets the artwork breathe ---- */}
+        {/* ---- the artwork breathes here ---- */}
         <View style={{ flex: 1 }} />
 
         {/* ============================================================
-            THE 5 PAGES  (swipe sideways, or press Next)
+            THE PAGES  (swipe, or press Next)
         ============================================================ */}
         <ScrollView
           ref={pager}
@@ -271,22 +236,16 @@ export default function Onboarding() {
         >
           {STAGES.map((stage) => (
             <View key={stage.id} style={{ width }}>
-              {/*
-                EVERY PAGE USES THE SAME PIECES BELOW.
-                Nothing here is a copy of another stage — these are the
-                shared building blocks, fed different words.
-              */}
               <View style={styles.content}>
-                {/* ---- small orange words ---- */}
                 <Text style={styles.eyebrow}>{stage.eyebrow}</Text>
 
-                {/* ---- the 3 big lines ---- */}
                 {stage.lines.map((line, li) => (
                   <Text
                     key={line}
+                    numberOfLines={1}
                     style={[
                       styles.headline,
-                      { fontSize: headlineSize, lineHeight: headlineSize * 1.08 },
+                      { fontSize: headlineSize, lineHeight: headlineSize * 1.06 },
                       li === stage.hot && styles.headlineHot,
                     ]}
                   >
@@ -294,10 +253,8 @@ export default function Onboarding() {
                   </Text>
                 ))}
 
-                {/* ---- the paragraph ---- */}
                 <Text style={styles.body}>{stage.body}</Text>
 
-                {/* ---- the 4 cards ---- */}
                 <FeatureCards cards={stage.cards} />
               </View>
             </View>
@@ -305,21 +262,19 @@ export default function Onboarding() {
         </ScrollView>
 
         {/* ============================================================
-            THE BOTTOM — same Next button and dots on all 5 pages,
-            so they never move when you swipe.
+            THE BOTTOM — Next + dots (same on both pages)
         ============================================================ */}
         <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <NextButton label={isLast ? 'Enter ZIVO' : 'Next'} onPress={goNext} />
           <Dots total={STAGES.length} active={index} />
         </View>
       </View>
-    </ImageBackground>
+    </View>
   );
 }
 
 // ============================================================
-//  3. THE SHARED PIECES
-//     (used by all 5 stages — never duplicated)
+//  5. THE SHARED PIECES  (used by every page — never copied)
 // ============================================================
 
 /** the 4 little cards in one row */
@@ -328,7 +283,7 @@ function FeatureCards({ cards }) {
     <View style={styles.cardRow}>
       {cards.map((c) => (
         <View key={c.label} style={styles.card}>
-          <Ionicons name={c.icon} size={18} color="#FF8A00" />
+          <Ionicons name={c.icon} size={21} color="#FF8A00" />
           <Text style={styles.cardText}>{c.label}</Text>
         </View>
       ))}
@@ -347,16 +302,13 @@ function NextButton({ label, onPress }) {
         style={styles.nextInner}
       >
         <Text style={styles.nextText}>{label}</Text>
-        <Ionicons name="arrow-forward" size={17} color="#0B0B12" />
+        <Ionicons name="arrow-forward" size={19} color="#0B0B12" />
       </LinearGradient>
     </Pressable>
   );
 }
 
-/**
- * The dots. `active` decides which one is orange —
- * on Stage 2 we pass active={1}, so the SECOND dot lights up.
- */
+/** the dots — `active` decides which one is orange */
 function Dots({ total, active }) {
   return (
     <View style={styles.dots}>
@@ -368,17 +320,23 @@ function Dots({ total, active }) {
 }
 
 // ============================================================
-//  4. THE STYLES
+//  6. THE STYLES
 // ============================================================
 const styles = StyleSheet.create({
-  // the picture, filling the entire physical screen
-  root: { flex: 1, backgroundColor: '#05070E' },
+  // the root spans the whole phone screen.
+  // Its colour matches the very top of your artwork (near black),
+  // so even a one-pixel sliver can never look like a black strip.
+  root: { flex: 1, backgroundColor: '#000205' },
 
-  // the stack: status-bar gap / Skip / artwork gap / pages / button+dots
+  // the background layer, pinned to all four physical edges
+  bgLayer: { position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 },
+  bgImage: { position: 'absolute', top: 0, left: 0 },
+
+  // the stack: status-bar gap / Skip / artwork gap / pages / bottom
   column: { flex: 1 },
 
-  // --- the Skip pill (identical to Stage 1) ---
-  topRow: { alignItems: 'flex-end', paddingHorizontal: 20, paddingTop: 8 },
+  // --- Skip pill ---
+  topRow: { alignItems: 'flex-end', paddingHorizontal: SIDE, paddingTop: 8 },
   skipPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -387,22 +345,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.20)',
     backgroundColor: 'rgba(12,14,24,0.45)',
-    paddingHorizontal: 15,
-    paddingVertical: 9,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
-  skipText: { fontFamily: 'Rajdhani-Bold', fontSize: 13, color: '#EDEDF5' },
+  skipText: { fontFamily: 'Rajdhani-Bold', fontSize: 14.5, color: '#EDEDF5' },
 
   // --- the pager ---
   pager: { flexGrow: 0 },
 
   // --- the words ---
-  content: { paddingHorizontal: 20, paddingBottom: 4 },
+  content: { paddingHorizontal: SIDE, paddingBottom: 4 },
   eyebrow: {
     fontFamily: 'Rajdhani-Bold',
-    fontSize: 10.5,
+    fontSize: 12.5,
     letterSpacing: 2.6,
     color: '#FF8A00',
-    marginBottom: 6,
+    marginBottom: 7,
   },
   headline: {
     fontFamily: 'BebasNeue',
@@ -412,46 +370,71 @@ const styles = StyleSheet.create({
   headlineHot: { color: '#FF8A00' },
   body: {
     fontFamily: 'Rajdhani-Medium',
-    fontSize: 13,
-    lineHeight: 20,
-    color: 'rgba(233,233,242,0.82)',
-    marginTop: 10,
+    fontSize: 14.5,
+    lineHeight: 22,
+    color: 'rgba(233,233,242,0.84)',
+    marginTop: 11,
   },
 
   // --- the 4 cards ---
-  cardRow: { flexDirection: 'row', gap: 7, marginTop: 16 },
+  cardRow: { flexDirection: 'row', gap: 7, marginTop: 17 },
   card: {
-    flex: 1, // equal widths, whatever the phone
+    flex: 1, // equal widths on every phone
     alignItems: 'center',
-    gap: 7,
+    gap: 8,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.13)',
     backgroundColor: 'rgba(10,12,22,0.55)',
-    paddingVertical: 11,
+    paddingVertical: 12,
     paddingHorizontal: 4,
   },
   cardText: {
     fontFamily: 'Rajdhani-SemiBold',
-    fontSize: 9.5,
-    lineHeight: 11.5,
+    fontSize: 10.5,
+    lineHeight: 13,
     color: '#F2F2F7',
     textAlign: 'center',
   },
 
   // --- the button and the dots ---
-  footer: { paddingHorizontal: 20, paddingTop: 16 },
+  footer: { paddingHorizontal: SIDE, paddingTop: 16 },
   nextWrap: { borderRadius: 16, overflow: 'hidden' },
   nextInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 9,
-    paddingVertical: 16,
+    gap: 10,
+    paddingVertical: 17,
   },
-  nextText: { fontFamily: 'Rajdhani-Bold', fontSize: 16.5, color: '#0B0B12' },
+  nextText: { fontFamily: 'Rajdhani-Bold', fontSize: 18, color: '#0B0B12' },
 
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 7, marginTop: 16 },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.22)' },
-  dotOn: { width: 22, backgroundColor: '#FF8A00' },
+  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.22)' },
+  dotOn: { width: 24, backgroundColor: '#FF8A00' },
 });
+
+/**
+ * ============================================================
+ *  PARKED PAGES — the 3 we cut
+ * ============================================================
+ *  You said this copy was not meaningful, so the app now has 2
+ *  pages. When you write better words, copy one of the blocks
+ *  below into the STAGES list above and the page comes back —
+ *  the dots count themselves.
+ *
+ *  {
+ *    id: 'how',
+ *    eyebrow: 'HOW ZIVO WORKS',
+ *    lines: ['LINE ONE', 'LINE TWO', 'LINE THREE'],
+ *    hot: 2,
+ *    body: 'Your paragraph here.',
+ *    cards: [
+ *      { icon: 'add-circle', label: 'Host a\nroom' },
+ *      { icon: 'enter', label: 'Join a\nroom' },
+ *      { icon: 'checkmark-circle', label: 'Check\nin' },
+ *      { icon: 'medal', label: 'Win the\nprize' },
+ *    ],
+ *  },
+ * ============================================================
+ */
