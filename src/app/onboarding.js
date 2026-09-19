@@ -2,7 +2,7 @@
  * ============================================================
  *  ZIVO — ONBOARDING  (2 pages, one shared look)
  * ============================================================
- *  ONE file, ONE design system, TWO pages.
+ *  ONE file, ONE design system, FIVE pages.
  *  Both pages use the exact same pieces:
  *
  *      <FeatureCards />   the 4 little cards
@@ -12,9 +12,10 @@
  *  A "page" is just DATA (some words). Change the words in the
  *  STAGES list below and the screen changes.
  *
- *  Pages 3, 4 and 5 were removed because you did not like that
- *  copy. They are parked at the bottom of this file — scroll to
- *  the very end, put your own words in, and they come back.
+ *  Every headline line is kept SHORT (18 characters or less).
+ *  That is not a style choice — the code measures the longest
+ *  line on any page and sizes the text to fit across your phone.
+ *  Longer lines = smaller fonts on every page.
  *
  *  ------------------------------------------------------------
  *  THE BACKGROUND SITS OVER THE WHOLE SCREEN
@@ -98,6 +99,48 @@ const STAGES = [
       { icon: 'logo-bitcoin', label: 'Earn\nCoins' },
       { icon: 'stats-chart', label: 'XP &\nLeaderboards' },
       { icon: 'people', label: 'Referral\nRewards' },
+    ],
+  },
+  {
+    id: 'daily',
+    eyebrow: 'PLAY YOUR WAY',
+    lines: ['Play Daily', 'Compete Hard', 'Win Real Prizes'],
+    hot: 2,
+    body:
+      'Free rooms run every evening and premium rooms every weekend. Play one match or ten — every win moves you up, and the board never lies.',
+    cards: [
+      { icon: 'calendar', label: 'Rooms\nDaily' },
+      { icon: 'flash', label: 'Play\nInstantly' },
+      { icon: 'trophy', label: 'Win\nPrizes' },
+      { icon: 'trending-up', label: 'Climb\nThe Board' },
+    ],
+  },
+  {
+    id: 'fair',
+    eyebrow: 'FAIR PLAY, ALWAYS',
+    lines: ['Clean Rooms', 'Verified Wins', 'Prize Paid Out'],
+    hot: 2,
+    body:
+      'Character skills off. Spectators locked to their own team. Every result is checked before a prize moves, and the payout receipt is posted in the room.',
+    cards: [
+      { icon: 'shield-checkmark', label: 'Clean\nRooms' },
+      { icon: 'camera', label: 'Screenshot\nProof' },
+      { icon: 'videocam', label: 'Referee\nRecords' },
+      { icon: 'receipt', label: 'Payout\nReceipt' },
+    ],
+  },
+  {
+    id: 'ready',
+    eyebrow: 'YOU ARE READY',
+    lines: ['Free To Join', 'Coins Waiting', 'Start Tonight'],
+    hot: 2,
+    body:
+      'Sign up free, collect your starter coins and jump into your first room tonight. Winner takes the prize — and the bragging rights.',
+    cards: [
+      { icon: 'flash', label: 'Quick\nSignup' },
+      { icon: 'logo-bitcoin', label: 'Starter\nCoins' },
+      { icon: 'enter', label: 'Join A\nRoom' },
+      { icon: 'people', label: 'Squad\nUp' },
     ],
   },
 ];
@@ -413,28 +456,3 @@ const styles = StyleSheet.create({
   dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.22)' },
   dotOn: { width: 24, backgroundColor: '#FF8A00' },
 });
-
-/**
- * ============================================================
- *  PARKED PAGES — the 3 we cut
- * ============================================================
- *  You said this copy was not meaningful, so the app now has 2
- *  pages. When you write better words, copy one of the blocks
- *  below into the STAGES list above and the page comes back —
- *  the dots count themselves.
- *
- *  {
- *    id: 'how',
- *    eyebrow: 'HOW ZIVO WORKS',
- *    lines: ['LINE ONE', 'LINE TWO', 'LINE THREE'],
- *    hot: 2,
- *    body: 'Your paragraph here.',
- *    cards: [
- *      { icon: 'add-circle', label: 'Host a\nroom' },
- *      { icon: 'enter', label: 'Join a\nroom' },
- *      { icon: 'checkmark-circle', label: 'Check\nin' },
- *      { icon: 'medal', label: 'Win the\nprize' },
- *    ],
- *  },
- * ============================================================
- */
