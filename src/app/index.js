@@ -1,204 +1,238 @@
 /**
  * ============================================================
- *  ZIVO  —  PAGE 1: the "Get Started" screen
+ *  ZIVO  —  the "Get Started" screen  (src/app/index.js)
  * ============================================================
- *  Everything for this page is inside THIS ONE FILE.
- *  Nothing is hidden somewhere else. Read it top to bottom:
+ *  This is the first screen anybody sees.
  *
- *    part 1 — the imports (the tools this page needs)
- *    part 2 — the screen itself
- *    part 3 — the two buttons (small parts written right here)
- *    part 4 — the styles (all the looks, at the bottom)
+ *  THE PICTURE IS THE WHOLE SCREEN.
+ *  Everything you can read is already drawn inside the artwork:
+ *      ZIVO · TOURNAMENTS · PLAY · COMPETE · CONNECT · RISE
+ *      YOUR GAME. YOUR MOMENT.
+ *      "Join tournaments, compete with players and earn rewards."
  *
- *  Only 4 colours matter on this page, and they are written
- *  where you can see them:
- *     #FFC529 / #FF6A00  the orange of the button
- *     #08080F           the screen background
- *     #F4F4F8           normal white text
- *     #C9C9DC / #84849C grey text (the small lines)
+ *  So this file does NOT draw any of that. No logo, no tagline,
+ *  no heading, no description. If we drew them again they would
+ *  sit on top of the picture's own words and look messy.
+ *
+ *  All this file adds is TWO REAL BUTTONS:
+ *      [ GET STARTED → ]   orange, dark text, soft orange glow
+ *      [     LOG IN    ]   dark glass, thin light border
+ *
+ *  There is no "New to Zivo? Create account" line, on purpose.
+ *
+ *  Read it in 4 parts:
+ *      1. the imports
+ *      2. the artwork facts + the maths that keeps the buttons clear
+ *      3. the screen
+ *      4. the styles
  * ============================================================
  */
 
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router'; // router.push / router.replace
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// ------------------------------------------------------------
-//  PART 2 — THE SCREEN
-// ------------------------------------------------------------
+// ============================================================
+//  1. THE ARTWORK  — the two facts we need about your picture
+// ============================================================
+//  These two numbers come from the artwork file itself.
+//  If you ever swap the picture for a new one with different
+//  size, only these two lines change.
+// ============================================================
+const ART = {
+  src: require('../../assets/zivo/getstarted.jpg'),
+
+  // the picture's real pixel size
+  w: 864,
+  h: 1821,
+
+  // where the picture's own words END (0.80 = 80% down the
+  // picture). Below that line the artwork is dark and empty —
+  // that is where our buttons are allowed to live.
+  copyEnd: 0.8,
+};
+
+// ============================================================
+//  2. THE SCREEN
+// ============================================================
 export default function GetStarted() {
-  // insets = how far the phone's notch and home bar stick into the
-  // screen. We use it so nothing hides behind them.
-  const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets(); // the notch and the phone's home bar
+  const screen = Dimensions.get('screen'); // the WHOLE physical screen
+
+  // how tall our button block actually is — the phone tells us
+  const [blockH, setBlockH] = useState(0);
+
+  // ---- how the picture lands on this phone -------------------
+  // "cover" means: scale the picture up until it fills the screen.
+  // Which side gets cropped depends on the phone's shape.
+  const scale = Math.max(screen.width / ART.w, screen.height / ART.h);
+  const drawnH = ART.h * scale; // how tall the picture becomes
+  const crop = Math.max(0, (drawnH - screen.height) / 2); // centred crop
+
+  // where the picture's words end, in screen pixels
+  const copyEndsAt = ART.copyEnd * drawnH - crop;
+
+  // where our buttons start
+  const buttonsStartAt = screen.height - blockH;
+
+  // if the buttons would reach up into the words, slide the
+  // picture up by exactly that much. Never more than 10%, so the
+  // ZIVO logo at the top can never be cut off.
+  const overlap = blockH > 0 ? Math.max(0, copyEndsAt + 12 - buttonsStartAt) : 0;
+  const shiftUp = Math.min(crop + overlap, drawnH * 0.1);
+
+  const picturePosition = shiftUp > 1 ? { top: shiftUp } : 'center';
+
+  // ---- the two buttons ---------------------------------------
+  // push = go forward; the phone's back button brings you back
+  function startOnboarding() {
+    router.push('/onboarding');
+  }
+
+  // replace = go forward and forget this screen, so the back
+  // button does not return to the splash screen
+  function goToApp() {
+    router.replace('/(tabs)');
+  }
 
   return (
-    <View style={styles.screen}>
-      {/* 1. THE PICTURE — fills the whole screen */}
-      <Image
-        source={require('../../assets/zivo/splash.jpg')}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-      />
-
-      {/* 2. THE DARK FADE — sits on top of the picture so the white
-             text stays readable. Delete this and the text disappears. */}
-      <LinearGradient
-        colors={[
-          'rgba(6,6,12,0.86)',
-          'rgba(6,6,12,0.24)',
-          'rgba(6,6,12,0.42)',
-          'rgba(6,6,12,0.94)',
-          '#06060C',
-        ]}
-        locations={[0, 0.3, 0.58, 0.84, 1]}
-        style={StyleSheet.absoluteFill}
-      />
-
-      {/* 3. THE LOGO + ZIVO + the small line under it */}
-      <View style={[styles.logoWrap, { marginTop: insets.top + 80 }]}>
+    // the root tag spans the whole phone screen
+    <View style={styles.root}>
+      {/* ============================================================
+          THE PICTURE
+          Pinned to all four edges of the physical screen, so it runs
+          behind the status bar and behind the home indicator.
+          Colouring is NOT added on top of it — what you see is the
+          artwork, plus the two buttons below.
+      ============================================================ */}
+      <View style={styles.bgLayer} pointerEvents="none">
         <Image
-          source={require('../../assets/zivo/mark.png')}
-          style={styles.mark}
-          resizeMode="contain"
+          source={ART.src}
+          style={{ width: screen.width, height: screen.height }}
+          contentFit="cover"
+          contentPosition={picturePosition}
         />
-        <Text style={styles.brand}>ZIVO</Text>
-        <Text style={styles.tagline}>PLAY · COMPETE · CONNECT · RISE</Text>
       </View>
 
-      {/* 4. THE BOTTOM: one line of text and two buttons */}
-      <View style={[styles.bottom, { paddingBottom: insets.bottom + 28 }]}>
-        <Text style={styles.pitch}>
-          Host tournaments. Compete for rewards.{'\n'}Build your legend.
-        </Text>
+      {/* ============================================================
+          THE BUTTONS  (these respect the safe areas)
+      ============================================================ */}
+      <View
+        style={styles.column}
+        onLayout={(e) => setBlockH(e.nativeEvent.layout.height)}
+      >
+        {/* the artwork needs the room — this pushes the buttons down */}
+        <View style={{ flex: 1, minHeight: insets.top }} />
 
-        {/* push = go forward, and the back button brings you back here */}
-        <OrangeButton label="Get Started" onPress={() => router.push('/onboarding')} />
+        <View
+          style={[
+            styles.buttons,
+            { paddingBottom: Math.max(insets.bottom, 16) + 10 },
+          ]}
+        >
+          {/* ---- GET STARTED ---- */}
+          <Pressable
+            onPress={startOnboarding}
+            style={({ pressed }) => [styles.goldOuter, pressed && { opacity: 0.9 }]}
+            accessibilityRole="button"
+            accessibilityLabel="Get Started"
+          >
+            <LinearGradient
+              colors={['#FF8A00', '#FF6A00']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.goldInner}
+            >
+              <Text style={styles.goldText}>GET STARTED</Text>
+              <Ionicons name="arrow-forward" size={19} color="#170B00" />
+            </LinearGradient>
+          </Pressable>
 
-        <View style={{ height: 10 }} />
-
-        {/* replace = go forward and forget this page (so back does not
-            return to the splash screen) */}
-        <DarkButton label="Log in" onPress={() => router.replace('/(tabs)')} />
-
-        <Text style={styles.legal}>Independent platform · Not affiliated with Garena</Text>
+          {/* ---- LOG IN ---- */}
+          <Pressable
+            onPress={goToApp}
+            style={({ pressed }) => [styles.darkBtn, pressed && { opacity: 0.85 }]}
+            accessibilityRole="button"
+            accessibilityLabel="Log in"
+          >
+            <Text style={styles.darkText}>LOG IN</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
 }
 
-// ------------------------------------------------------------
-//  PART 3 — THE TWO BUTTONS (little parts, right here in the file)
-// ------------------------------------------------------------
-
-/** The orange button. This is the main button of the whole app. */
-function OrangeButton({ label, onPress }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
-    >
-      <LinearGradient
-        colors={['#FFC529', '#FF6A00']} // <-- change these to change the colour
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.btnInner}
-      >
-        <Text style={[styles.btnText, { color: '#171000' }]}>{label}</Text>
-      </LinearGradient>
-    </Pressable>
-  );
-}
-
-/** The quiet see-through button (used for "Log in"). */
-function DarkButton({ label, onPress }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.btn, styles.btnDark, pressed && styles.btnPressed]}
-    >
-      <Text style={[styles.btnText, { color: '#F4F4F8' }]}>{label}</Text>
-    </Pressable>
-  );
-}
-
-// ------------------------------------------------------------
-//  PART 4 — THE STYLES. Every look on this page is here.
-//  Change a number, save, and your phone updates.
-// ------------------------------------------------------------
+// ============================================================
+//  3. THE STYLES
+// ============================================================
 const styles = StyleSheet.create({
-  // flex: 1 = take up the whole screen
-  // space-between = logo pushed to the top, buttons pushed to the bottom
-  screen: {
-    flex: 1,
-    backgroundColor: '#08080F',
-    justifyContent: 'space-between',
+  // the whole physical screen. The colour matches the artwork's
+  // darkest edge, so a sliver can never look like a black strip.
+  root: { flex: 1, backgroundColor: '#05030A' },
+
+  // the picture layer, pinned to every edge of the screen
+  bgLayer: { position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 },
+
+  // the column that holds the buttons at the bottom
+  column: { flex: 1 },
+
+  // the two buttons, with breathing room from the phone's home bar
+  buttons: { paddingHorizontal: 24, gap: 11 },
+
+  // --- GET STARTED ---
+  // The glow lives on this OUTER view (an outer glow is cut off if
+  // the view clips its children, so the rounded corners and the
+  // clipping live on the inner gradient instead).
+  goldOuter: {
+    borderRadius: 14,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 5, // the two small corners give it that
+    borderBottomRightRadius: 14, // angular, gaming look
+    borderBottomLeftRadius: 5,
+    boxShadow: '0 8px 20px rgba(255,110,0,0.45)', // the soft orange glow
   },
-
-  logoWrap: { alignItems: 'center' },
-  mark: { width: 58, height: 58 },
-
-  brand: {
-    fontFamily: 'BebasNeue',
-    fontSize: 42,
-    letterSpacing: 9,
-    color: '#F4F4F8',
-    marginTop: 12,
-  },
-
-  tagline: {
-    fontFamily: 'Rajdhani-Bold',
-    fontSize: 10,
-    letterSpacing: 2.4,
-    color: '#C6C6DA',
-    marginTop: 6,
-  },
-
-  bottom: { paddingHorizontal: 26 },
-
-  pitch: {
-    fontFamily: 'Rajdhani-SemiBold',
-    fontSize: 12.5,
-    lineHeight: 21,
-    textAlign: 'center',
-    color: '#C9C9DC',
-    marginBottom: 16,
-  },
-
-  legal: {
-    fontFamily: 'Rajdhani-Medium',
-    fontSize: 10.5,
-    textAlign: 'center',
-    color: '#84849C',
-    marginTop: 14,
-  },
-
-  // --- the buttons ---
-  btn: {
-    width: '100%',
-    minHeight: 52,
-    borderRadius: 13,
-    overflow: 'hidden',
+  goldInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 16,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 14,
+    borderBottomLeftRadius: 5,
+    overflow: 'hidden',
   },
-  btnInner: {
-    flex: 1,
+  goldText: {
+    fontFamily: 'Rajdhani-Bold',
+    fontSize: 16.5,
+    letterSpacing: 1.6,
+    color: '#170B00',
+  },
+
+  // --- LOG IN ---
+  darkBtn: {
+    borderRadius: 14,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 14,
+    borderBottomLeftRadius: 5,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(10,10,18,0.55)',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 15,
   },
-  btnDark: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.16)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnText: {
+  darkText: {
     fontFamily: 'Rajdhani-Bold',
-    fontSize: 15,
-    letterSpacing: 0.3,
+    fontSize: 15.5,
+    letterSpacing: 1.6,
+    color: '#F4F4F8',
   },
-  btnPressed: { opacity: 0.88 },
 });
