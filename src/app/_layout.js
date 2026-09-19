@@ -50,7 +50,20 @@ export default function Layout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <StatusBar style="light" />
-        <Stack screenOptions={{ headerShown: false }} />
+        {/*
+          contentStyle: 'transparent' means the screen container does
+          NOT paint its own colour. Without it, expo-router's Stack can
+          paint a dark box that shows up as a strip at the top of the
+          screen — above our background picture. With it, the picture
+          inside each screen is the only thing you see, right up to the
+          edges of the phone.
+        */}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: 'transparent' },
+          }}
+        />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
